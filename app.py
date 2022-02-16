@@ -1,10 +1,6 @@
 import tkinter as tk
 
 import level_info  # level info
-
-EAZY = 1
-NORMAL = 2
-HARD = 3
 		
 class App:
 	def __init__(self, master):
@@ -13,6 +9,7 @@ class App:
 		self.menu()
 		self.virtual = tk.PhotoImage(file = "virtual.png")
 		self.flag = tk.PhotoImage(file = "mini_flag.png")
+		self.game_info = level_info.LevleInfo()
 
 	def menu(self):
 		self.clean_view()
@@ -25,34 +22,43 @@ class App:
 		self.hard_btn.grid(column = 0, row = 2, pady = 10)
 
 	def eazy(self):
+		level = self.game_info.EAZY
 		self.frame.config(width = 300, height = 300)
 		self.clean_view()
-		self.game_view(EAZY)
+		self.game_view(level)
 
 	def normal(self):
-		self.frame.config(width = 470, height = 470)
+		level = self.game_info.NORMAL
+		self.frame.config(width = 465, height = 475)
 		self.clean_view()
-		self.game_view(NORMAL)
+		self.game_view(level)
 
 	def hard(self):
+		level = self.game_info.HARD
 		self.frame.config(width = 800, height = 500)
 		self.clean_view()
-		self.game_view(HARD)
+		self.game_view(level)
+
+	def game_view(self, level):
+		self.game_info_view(level)
+		self.game_grid_view(level)
 
 	def clean_view(self):
 		for widget in self.frame.winfo_children():
 			widget.destroy()
 
 	## menu label and bomb flag count
-	def game_info_view(self, lel):
+	def game_info_view(self, level):
 
 		self.info_grid = tk.Frame(self.frame)
 		self.info_grid.place(x = 20, y = 20)
 		self.return_btn = tk.Button(self.info_grid, text = "menu", width = 10, command = self.menu)
 		self.return_btn.pack(side = tk.LEFT)
 
-		bomb = level_info.level_list[lel][0]
-		flag = level_info.level_list[lel][1]
+		game_list = self.game_info.get_level_list()
+
+		bomb = game_list[level][0]
+		flag = game_list[level][1]
 		
 		self.bc = tk.IntVar(value = bomb)
 		self.fc = tk.IntVar(value = flag)
@@ -68,23 +74,33 @@ class App:
 		self.flag_label.pack(side = tk.LEFT, padx = 10)
 		self.flag_info.pack(side = tk.LEFT)
 
-	def game_grid_view(self,lel):
-		self.width = level_info.level_list[lel][2]
-		self.height = level_info.level_list[lel][3]
+	def game_grid_view(self,level):
+
+		game_list = self.game_info.get_level_list()
+
+		self.width = game_list[level][2]
+		self.height = game_list[level][3]
 
 		self.grid_frame = tk.Frame(self.frame)
 		self.grid_frame.place(x = 50, y = 70)
-		self.btn_list = [[0 for x in range(self.width)] for y in range(self.height)]
-		self.btn_val = [[0 for x in range(self.width)] for y in range(self.height)]
-		self.game_table = level_info.get_game_table(lel)
+		self.btn_list = [[0 for x in range(self.height)] for y in range(self.width)]
+		self.btn_val = [[0 for x in range(self.height)] for y in range(self.width)]
+		self.btn_is_flaged = [[0 for x in range(self.height)] for y in range(self.width)]
 		
-		for x in range(self.height):	
-			for y in range(self.width):
-				self.btn_val[x][y] = tk.IntVar(value = self.game_table[x][y])
+		self.game_info.new_table(level)
+
+		display_table = self.game_info.get_diplay_table()
+		bomb_table =  self.game_info.get_bomb_table()
+		
+		for x in range(self.width):	
+			for y in range(self.height):
+				self.btn_val[x][y] = tk.IntVar(value = display_table[x][y])
 				self.btn_list[x][y] = tk.Button(self.grid_frame, image = self.virtual, width = 15, height = 15)
-				self.btn_list[x][y].bind("<Button-1>", lambda evt, x = x, y = y: self.left_click(x, y))
-				self.btn_list[x][y].bind("<Button-3>", lambda evt, x = x, y = y: self.right_click(x, y))
-				self.btn_list[x][y].grid(column= y, row= x, padx = 1, pady = 1)
+				self.btn_list[x][y].bind("<Button-1>", lambda evt, x = x, y = y: self.left_click_for_flag(x, y))
+				self.btn_list[x][y].bind("<Button-3>", lambda evt, x = x, y = y: self.right_click_for_reveal(x, y))
+				self.btn_list[x][y].grid(column= x, row= y, padx = 1, pady = 1)
+				#self.btn_list[x][y].config(text = str(self.btn_val[x][y].get()), compound = 'c')
+				
 
 
 
@@ -95,29 +111,32 @@ class App:
 				if status :
 					self.btn_list[x][y].config(bg = 'black')
 
-	def game_view(self, lel):
-		self.game_info_view(lel)
-		self.game_grid_view(lel)
 
-	def left_click(self, x, y):
-		print("LEFT")
+	def left_click_for_flag(self, x, y):
 		#self.test_bomb()
+		if self.btn_is_flaged[x][y] : return
+
+		
+
 	
-	def right_click(self, x, y):
-		status = self.btn_val[x][y].get()
+	def right_click_for_reveal(self, x, y):
+
+		isFlaged = self.btn_is_flaged[x][y]
 		flag_count = self.fc.get()
 
-		if status >= 10 :
+		if isFlaged :
 			self.btn_list[x][y].config(image = self.virtual)
-			self.btn_val[x][y].set(status - 10)
+			self.btn_is_flaged[x][y] = 0
 			self.fc.set(flag_count + 1)
 			return
 
-		if flag_count != 0 and status < 10:
+		if flag_count != 0 :
 			self.btn_list[x][y].config(image = self.flag)
-			self.btn_val[x][y].set(status + 10)
+			self.btn_is_flaged[x][y] = 1
 			self.fc.set(flag_count - 1)
 			return
+
+
 
 
 if __name__ == "__main__":
