@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.messagebox 
 
 import level_info  # level info
+from pic2str import flag_png
+from pic2str import virtual_png
 
 DEBUG = 0
 		
@@ -11,8 +13,8 @@ class App:
 		self.frame.config(bg = '#efefef')
 		self.frame.pack()
 		self.menu()
-		self.virtual = tk.PhotoImage(file = "virtual.png")
-		self.flag = tk.PhotoImage(file = "mini_flag.png")
+		self.virtual = tk.PhotoImage(data = virtual_png)
+		self.flag = tk.PhotoImage(data = flag_png)
 		self.game_info = level_info.LevleInfo()
 
 	def menu(self):
@@ -142,7 +144,7 @@ class App:
 			self.recursive_update_display(x,y+1)
 			self.recursive_update_display(x,y-1)
 		else:
-			self.btn_list[x][y].config(text = str(status), foreground = 'red', background = '#99ffcc')
+			self.btn_list[x][y].config(text = str(status), foreground = 'black', background = '#99ffcc')
 			
 
 		
@@ -186,8 +188,6 @@ class App:
 		
 		if self.win_condition == 0:
 			self.win()
-
-
 
 
 if __name__ == "__main__":
