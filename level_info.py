@@ -37,15 +37,15 @@ class LevleInfo():
 		for x in range(col):	
 			for y in range(row):
 				if self.__bomb_table[x][y] == 1:
-					if x - 1 > 0 and y - 1 > 0 : self.__display_table[x-1][y-1] += 1
-					if y - 1 > 0 : self.__display_table[x][y-1] += 1
-					if x + 1 < col and y - 1 > 0 : self.__display_table[x+1][y-1] += 1
-					if x - 1 > 0 : self.__display_table[x-1][y] += 1
+					if x - 1 >= 0 and y - 1 >= 0 : self.__display_table[x-1][y-1] += 1
+					if y - 1 >= 0 : self.__display_table[x][y-1] += 1
+					if x + 1 < col and y - 1 >= 0 : self.__display_table[x+1][y-1] += 1
+					if x - 1 >= 0 : self.__display_table[x-1][y] += 1
 					if x + 1 < col : self.__display_table[x+1][y] += 1
-					if x - 1 > 0 and y + 1 < row : self.__display_table[x-1][y+1] += 1
+					if x - 1 >= 0 and y + 1 < row : self.__display_table[x-1][y+1] += 1
 					if y + 1 < row : self.__display_table[x][y+1] += 1
 					if x + 1 < col and y + 1 < row : self.__display_table[x+1][y+1] += 1
-		return self.__display_table
+		
 
 
 	def __cal_bomb_table(self,level):
@@ -53,16 +53,16 @@ class LevleInfo():
 			self.__bomb_table = [[0 for x in range(9)] for y in range(9)]
 			num = random.sample(range(81), 10)	
 			for i in num:
-				x = i / 9
-				y = i % 9
-				self.__bomb_table[int(x)][y] = 1
+				x = i % 9
+				y = i / 9
+				self.__bomb_table[x][int(y)] = 1
 		elif level == self.NORMAL:
 			self.__bomb_table = [[0 for x in range(16)] for y in range(16)]
 			num = random.sample(range(256), 40)	
 			for i in num:
-				x = i / 16
-				y = i % 16
-				self.__bomb_table[int(x)][y] = 1
+				x = i % 16
+				y = i / 16
+				self.__bomb_table[x][int(y)] = 1
 		elif level == self.HARD:
 			self.__bomb_table = [[0 for x in range(16)] for y in range(30)]
 			num = random.sample(range(480), 99)	
@@ -72,6 +72,6 @@ class LevleInfo():
 				self.__bomb_table[x][int(y)] = 1
 		
 
-		return self.__cal_bomb_arround_for_dispaly_table()
+		
 
 	
